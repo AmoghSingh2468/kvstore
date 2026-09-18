@@ -1,5 +1,0 @@
-/home/amogh/kvstore/build/CMakeFiles/kvcore.dir
-/home/amogh/kvstore/build/CMakeFiles/kvserver.dir
-/home/amogh/kvstore/build/CMakeFiles/test_protocol.dir
-/home/amogh/kvstore/build/CMakeFiles/edit_cache.dir
-/home/amogh/kvstore/build/CMakeFiles/rebuild_cache.dir
