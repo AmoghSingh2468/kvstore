@@ -1,0 +1,2 @@
+/usr/bin/ar qc libkvcore.a CMakeFiles/kvcore.dir/src/protocol.cpp.o CMakeFiles/kvcore.dir/src/store.cpp.o CMakeFiles/kvcore.dir/src/command.cpp.o CMakeFiles/kvcore.dir/src/connection.cpp.o
+/usr/bin/ranlib libkvcore.a

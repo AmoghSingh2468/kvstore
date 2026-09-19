@@ -22,6 +22,9 @@ add_library(kvcore
   src/command.cpp  src/connection.cpp)
 target_include_directories(kvcore PUBLIC src)
 
+find_package(Threads REQUIRED)
+target_link_libraries(kvcore PUBLIC Threads::Threads)
+
 add_executable(kvserver src/main.cpp)
 target_link_libraries(kvserver PRIVATE kvcore)
 

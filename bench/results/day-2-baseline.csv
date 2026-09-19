@@ -1,0 +1,15 @@
+label,clients,test,ops_per_sec
+day-2-baseline,1,set,16413.62
+day-2-baseline,1,get,15145.78
+day-2-baseline,2,set,39323.63
+day-2-baseline,2,get,42571.31
+day-2-baseline,4,set,48555.48
+day-2-baseline,4,get,48100.05
+day-2-baseline,8,set,49188.39
+day-2-baseline,8,get,49007.60
+day-2-baseline,16,set,48496.61
+day-2-baseline,16,get,48192.77
+day-2-baseline,32,set,48355.90
+day-2-baseline,32,get,48496.61
+day-2-baseline,64,set,47528.52
+day-2-baseline,64,get,46860.36

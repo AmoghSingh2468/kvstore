@@ -1,0 +1,1 @@
+/usr/bin/c++ -fsanitize=thread -Wl,--dependency-file=CMakeFiles/kvserver.dir/link.d CMakeFiles/kvserver.dir/src/main.cpp.o -o kvserver  libkvcore.a

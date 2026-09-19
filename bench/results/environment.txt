@@ -1,0 +1,4 @@
+]633;E;lscpu;bc5e99eb-1c9b-4d89-b8c5-789326db34a0]633;CCPU(s):                                  12
+Model name:                              AMD Ryzen 5 5600H with Radeon Graphics
+Thread(s) per core:                      2
+6.18.33.2-microsoft-standard-WSL2

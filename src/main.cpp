@@ -6,6 +6,7 @@
 #include <iostream>
 #include "store.h"
 #include "connection.h"
+#include <thread>
 
 int main() {
     signal(SIGPIPE, SIG_IGN);          // writing to a dead socket must not kill us
@@ -36,9 +37,11 @@ int main() {
             perror("accept");
             break;
         }
-        Connection conn(client_fd);
-        conn.serve(store);              // one client at a time — correct for Day 1
-        ::close(client_fd);
+        std::thread([client_fd, &store] {
+            Connection conn(client_fd);
+            conn.serve(store);
+            ::close(client_fd);
+        }).detach();
     }
     ::close(listen_fd);
 }

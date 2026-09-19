@@ -1,0 +1,5 @@
+/home/amogh/kvstore/build-tsan/CMakeFiles/kvcore.dir
+/home/amogh/kvstore/build-tsan/CMakeFiles/kvserver.dir
+/home/amogh/kvstore/build-tsan/CMakeFiles/test_protocol.dir
+/home/amogh/kvstore/build-tsan/CMakeFiles/edit_cache.dir
+/home/amogh/kvstore/build-tsan/CMakeFiles/rebuild_cache.dir
