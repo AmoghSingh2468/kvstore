@@ -1,0 +1,15 @@
+label,clients,test,ops_per_sec
+day-3-fair-p16,1,set,209266.31
+day-3-fair-p16,1,get,215572.98
+day-3-fair-p16,2,set,399680.25
+day-3-fair-p16,2,get,399680.25
+day-3-fair-p16,4,set,688989.94
+day-3-fair-p16,4,get,713674.00
+day-3-fair-p16,8,set,1536570.38
+day-3-fair-p16,8,get,1536570.38
+day-3-fair-p16,16,set,2219263.25
+day-3-fair-p16,16,get,2219263.25
+day-3-fair-p16,32,set,2496255.50
+day-3-fair-p16,32,get,2496255.50
+day-3-fair-p16,64,set,2849002.75
+day-3-fair-p16,64,get,2495010.00

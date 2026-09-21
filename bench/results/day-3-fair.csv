@@ -1,0 +1,15 @@
+label,clients,test,ops_per_sec
+day-3-fair,1,set,15426.15
+day-3-fair,1,get,16110.84
+day-3-fair,2,set,29607.70
+day-3-fair,2,get,29625.24
+day-3-fair,4,set,49962.53
+day-3-fair,4,get,49950.05
+day-3-fair,8,set,114155.25
+day-3-fair,8,get,99800.40
+day-3-fair,16,set,159744.41
+day-3-fair,16,get,133155.80
+day-3-fair,32,set,199600.80
+day-3-fair,32,get,199600.80
+day-3-fair,64,set,265957.47
+day-3-fair,64,get,198412.69

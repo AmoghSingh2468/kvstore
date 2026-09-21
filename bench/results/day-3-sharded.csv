@@ -1,0 +1,15 @@
+label,clients,test,ops_per_sec
+day-3-sharded,1,set,16037.21
+day-3-sharded,1,get,16041.06
+day-3-sharded,2,set,40733.20
+day-3-sharded,2,get,41442.19
+day-3-sharded,4,set,45320.64
+day-3-sharded,4,get,47270.15
+day-3-sharded,8,set,47483.38
+day-3-sharded,8,get,47483.38
+day-3-sharded,16,set,46707.14
+day-3-sharded,16,get,47789.73
+day-3-sharded,32,set,47607.71
+day-3-sharded,32,get,47539.82
+day-3-sharded,64,set,46937.34
+day-3-sharded,64,get,47180.94
