@@ -10,3 +10,9 @@ day-3,c=16,run=3,2271901.25
 day-3,c=64,run=1,2848678.25
 day-3,c=64,run=2,2933928.00
 day-3,c=64,run=3,2772848.25
+day-3-256shards,c=16,run=1,1997124.25
+day-3-256shards,c=16,run=2,1958480.12
+day-3-256shards,c=16,run=3,2038486.62
+day-3-256shards,c=64,run=1,2625774.75
+day-3-256shards,c=64,run=2,2560163.75
+day-3-256shards,c=64,run=3,2931863.25

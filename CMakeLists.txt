@@ -30,3 +30,6 @@ target_link_libraries(kvserver PRIVATE kvcore)
 
 add_executable(test_protocol tests/test_protocol.cpp)
 target_link_libraries(test_protocol PRIVATE kvcore)
+
+add_executable(store_bench bench/store_bench.cpp)
+target_link_libraries(store_bench PRIVATE kvcore)

@@ -1,0 +1,21 @@
+shards=64 mode=dedicated
+threads,ops_per_sec
+1,19484328
+2,29398515
+4,50875059
+8,81530848
+12,97873273
+shards=64 mode=dedicated
+threads,ops_per_sec
+1,22638440
+2,36931560
+4,48688786
+8,80716943
+12,91543061
+shards=64 mode=dedicated
+threads,ops_per_sec
+1,21941388
+2,28778082
+4,57816019
+8,82810703
+12,100897642
