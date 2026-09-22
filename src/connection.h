@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include "store.h"
+#include "wal.h"
 
 class Connection {
 public:
@@ -8,7 +9,7 @@ public:
     int  fd() const { return fd_; }
 
     // Both return false if the connection should be closed.
-    bool on_readable(Store& store);
+    bool on_readable(Store& store, Wal* wal);      // ← Wal* added
     bool on_writable();
 
     bool wants_write() const { return write_pos_ < outbuf_.size(); }
@@ -19,5 +20,5 @@ private:
     int fd_;
     std::string inbuf_;
     std::string outbuf_;
-    size_t write_pos_ = 0;     // how much of outbuf_ has been sent
+    size_t write_pos_ = 0;
 };

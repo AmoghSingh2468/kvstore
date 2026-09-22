@@ -12,6 +12,7 @@
 #include <vector>
 #include "store.h"
 #include "connection.h"
+#include "wal.h"
 
 namespace {
 
@@ -23,7 +24,8 @@ void set_nonblocking(int fd) {
 // Recomputes what this connection currently cares about.
 void update_interest(int ep, Connection* conn) {
     epoll_event ev{};
-    ev.events  = EPOLLIN | (conn->wants_write() ? EPOLLOUT : 0);
+    ev.events  = static_cast<uint32_t>(EPOLLIN) |
+                 (conn->wants_write() ? static_cast<uint32_t>(EPOLLOUT) : 0u);
     ev.data.ptr = conn;
     ::epoll_ctl(ep, EPOLL_CTL_MOD, conn->fd(), &ev);
 }
@@ -34,7 +36,7 @@ void close_connection(int ep, Connection* conn) {
     delete conn;
 }
 
-void worker_loop(int ep, Store* store) {
+void worker_loop(int ep, Store* store, Wal* wal) {
     std::vector<epoll_event> events(1024);
 
     for (;;) {
@@ -51,7 +53,7 @@ void worker_loop(int ep, Store* store) {
             bool alive = true;
 
             if (e & (EPOLLHUP | EPOLLERR)) alive = false;
-            if (alive && (e & EPOLLIN))    alive = conn->on_readable(*store);
+            if (alive && (e & EPOLLIN))    alive = conn->on_readable(*store, wal);
             if (alive && (e & EPOLLOUT))   alive = conn->on_writable();
 
             if (!alive) close_connection(ep, conn);
@@ -67,16 +69,26 @@ int main() {
 
     const unsigned nworkers = std::max(1u, std::thread::hardware_concurrency());
 
+    // Recovery happens before the listener exists, so no client can observe
+    // a half-recovered store and no locking is needed here.
+    Store store;
+    Wal wal("kvstore.wal");
+    wal.replay([&store](const std::vector<std::string>& args) {
+        if (args.size() == 3 && (args[0] == "SET" || args[0] == "set"))
+            store.set(args[1], args[2]);
+        else if (args.size() == 2 && (args[0] == "DEL" || args[0] == "del"))
+            store.del(args[1]);
+    });
+
     // One epoll instance per worker: a connection belongs to exactly one
     // thread for its whole life, so Connection needs no locking.
     std::vector<int> epfds(nworkers);
-    Store store;
     std::vector<std::thread> workers;
 
     for (unsigned i = 0; i < nworkers; ++i) {
         epfds[i] = ::epoll_create1(0);
         if (epfds[i] < 0) { perror("epoll_create1"); return 1; }
-        workers.emplace_back(worker_loop, epfds[i], &store);
+        workers.emplace_back(worker_loop, epfds[i], &store, &wal);
     }
 
     int listen_fd = ::socket(AF_INET, SOCK_STREAM, 0);
@@ -96,7 +108,7 @@ int main() {
     if (::listen(listen_fd, 1024) < 0) { perror("listen"); return 1; }
 
     std::cout << "kvstore listening on :6380 (" << nworkers
-            << " event loops)" << std::endl;
+              << " event loops)" << std::endl;
 
     unsigned next = 0;
     for (;;) {

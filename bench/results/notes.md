@@ -60,3 +60,16 @@ At 2000 connections, measured under sustained load:
 gain only appears once scheduling 2000 runnable threads across 12 CPUs
 becomes a real cost. Thread count is constant regardless of connections,
 so memory and scheduling stop scaling with load.
+
+## 7. Durability costs 7000x without batching
+
+WAL with one fsync per write, 32 clients:
+  407 ops/sec, p50 = 60 ms
+Same workload without a WAL:
+  ~2,849,000 ops/sec (pipelined), ~266,000 (unpipelined)
+
+2.46 ms per operation. append_and_sync holds a mutex across
+write()+fsync(), so all writers serialise behind one disk round trip.
+On WSL2 an fsync crosses a VHD image and NTFS, so it is slower than
+a bare-metal SSD (~1 ms) — the group commit gain here is therefore
+larger than it would be on native Linux.

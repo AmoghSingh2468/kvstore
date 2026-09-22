@@ -25,7 +25,7 @@ bool Connection::try_flush() {
     return true;
 }
 
-bool Connection::on_readable(Store& store) {
+bool Connection::on_readable(Store& store, Wal* wal)  {
     char chunk[16384];
 
     for (;;) {
@@ -54,7 +54,7 @@ bool Connection::on_readable(Store& store) {
                 return false;                           // malformed: drop client
             }
             if (used == 0) break;                       // incomplete
-            execute(store, args, outbuf_);
+            execute(store, wal, args, outbuf_);
             consumed += used;
         }
         if (consumed > 0) inbuf_.erase(0, consumed);    // erase once, not per command

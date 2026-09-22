@@ -85,4 +85,9 @@ void write_bulk(std::string& d, std::string_view s) {
 }
 void write_nil(std::string& d) { d += "$-1\r\n"; }
 
+void write_bulk_array(std::string& dst, const std::vector<std::string>& args) {
+    dst += '*'; dst += std::to_string(args.size()); dst += "\r\n";
+    for (const auto& a : args) write_bulk(dst, a);
+}
+
 }  // namespace resp

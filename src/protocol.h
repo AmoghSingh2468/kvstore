@@ -17,5 +17,6 @@ void write_error (std::string& dst, std::string_view s);  // -ERR ...\r\n
 void write_int   (std::string& dst, long long n);         // :1\r\n
 void write_bulk  (std::string& dst, std::string_view s);  // $4\r\nFate\r\n
 void write_nil   (std::string& dst);                      // $-1\r\n
+void write_bulk_array(std::string& dst, const std::vector<std::string>& args);
 
 }  // namespace resp

@@ -19,7 +19,8 @@ endif()
 
 add_library(kvcore
   src/protocol.cpp src/store.cpp
-  src/command.cpp  src/connection.cpp)
+  src/command.cpp  src/connection.cpp
+  src/wal.cpp)
 target_include_directories(kvcore PUBLIC src)
 
 find_package(Threads REQUIRED)
