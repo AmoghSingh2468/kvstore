@@ -96,7 +96,7 @@ int main() {
     if (::listen(listen_fd, 1024) < 0) { perror("listen"); return 1; }
 
     std::cout << "kvstore listening on :6380 (" << nworkers
-              << " event loops)\n";
+            << " event loops)" << std::endl;
 
     unsigned next = 0;
     for (;;) {
