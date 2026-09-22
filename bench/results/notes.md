@@ -42,3 +42,21 @@ Kept 64.
   can be off by up to 25%. Use runs of 10+ seconds.
 - Report medians of 3+ runs with ranges.
 - 12 threads on 12 CPUs is noisy: nothing is left for the OS.
+
+## 6. epoll: no throughput gain at 64 connections, decisive at 2000
+
+At 64 connections, epoll vs thread-per-connection was within noise
+(pipelined: 2.27M vs 2.17M at c=16; ranges overlap). Expected —
+thread-per-connection is fine at that scale.
+
+At 2000 connections, measured under sustained load:
+
+| model               | threads | RSS    | ops/sec |
+|---------------------|--------:|-------:|--------:|
+| thread-per-conn     |    2001 | 168 MB |  ~98k   |
+| epoll, 12 loops     |      13 |  60 MB | ~130k   |
+
+154x fewer threads, 2.8x less memory, 1.3x throughput. The throughput
+gain only appears once scheduling 2000 runnable threads across 12 CPUs
+becomes a real cost. Thread count is constant regardless of connections,
+so memory and scheduling stop scaling with load.

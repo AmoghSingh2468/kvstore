@@ -16,3 +16,9 @@ day-3-256shards,c=16,run=3,2038486.62
 day-3-256shards,c=64,run=1,2625774.75
 day-3-256shards,c=64,run=2,2560163.75
 day-3-256shards,c=64,run=3,2931863.25
+day-3c-epoll,c=16,run=1,2169009.25
+day-3c-epoll,c=16,run=2,2376200.00
+day-3c-epoll,c=16,run=3,2171269.75
+day-3c-epoll,c=64,run=1,2696580.75
+day-3c-epoll,c=64,run=2,3024803.25
+day-3c-epoll,c=64,run=3,3025169.50

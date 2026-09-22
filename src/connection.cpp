@@ -3,53 +3,70 @@
 #include "command.h"
 #include <unistd.h>
 #include <errno.h>
-#include <cstring>
-#include <iostream>
+#include <vector>
+#include <stdexcept>
 
-bool Connection::flush_output() {
-    size_t sent = 0;
-    while (sent < outbuf_.size()) {
-        ssize_t n = ::write(fd_, outbuf_.data() + sent, outbuf_.size() - sent);
-        if (n < 0) {
-            if (errno == EINTR) continue;    // interrupted, retry
-            return false;
-        }
-        sent += static_cast<size_t>(n);
+// Writes as much of outbuf_ as the kernel will take, without blocking.
+// Returns false only on a fatal error.
+bool Connection::try_flush() {
+    while (write_pos_ < outbuf_.size()) {
+        ssize_t n = ::write(fd_, outbuf_.data() + write_pos_,
+                            outbuf_.size() - write_pos_);
+        if (n > 0) { write_pos_ += static_cast<size_t>(n); continue; }
+
+        if (n < 0 && errno == EINTR) continue;          // signal, retry
+        if (n < 0 && (errno == EAGAIN || errno == EWOULDBLOCK))
+            return true;    // send buffer full — finish on EPOLLOUT
+        return false;       // real error
     }
-    outbuf_.clear();
+
+    outbuf_.clear();        // fully sent
+    write_pos_ = 0;
     return true;
 }
 
-void Connection::serve(Store& store) {
-    char chunk[4096];
+bool Connection::on_readable(Store& store) {
+    char chunk[16384];
 
     for (;;) {
         ssize_t n = ::read(fd_, chunk, sizeof(chunk));
 
-        if (n == 0) return;                       // client closed cleanly
+        if (n == 0) return false;                       // client closed
         if (n < 0) {
             if (errno == EINTR) continue;
-            return;                               // real error
+            if (errno == EAGAIN || errno == EWOULDBLOCK) break;  // drained
+            return false;                               // real error
         }
 
         inbuf_.append(chunk, static_cast<size_t>(n));
 
-        // Drain every complete command sitting in the buffer
+        // Execute every complete command now in the buffer
+        size_t consumed = 0;
         for (;;) {
             std::vector<std::string> args;
             size_t used = 0;
             try {
-                used = resp::parse_command(inbuf_, args);
+                used = resp::parse_command(
+                    std::string_view(inbuf_).substr(consumed), args);
             } catch (const std::exception& e) {
                 resp::write_error(outbuf_, std::string("ERR ") + e.what());
-                flush_output();
-                return;                           // malformed: drop client
+                try_flush();
+                return false;                           // malformed: drop client
             }
-            if (used == 0) break;                 // incomplete: wait for more
+            if (used == 0) break;                       // incomplete
             execute(store, args, outbuf_);
-            inbuf_.erase(0, used);
+            consumed += used;
         }
+        if (consumed > 0) inbuf_.erase(0, consumed);    // erase once, not per command
 
-        if (!flush_output()) return;
+        // Level-triggered: one read per event is enough. Loop only if the
+        // buffer came back full, which suggests more data is waiting.
+        if (static_cast<size_t>(n) < sizeof(chunk)) break;
     }
+
+    return try_flush();
+}
+
+bool Connection::on_writable() {
+    return try_flush();
 }
