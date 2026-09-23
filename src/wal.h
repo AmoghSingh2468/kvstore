@@ -9,7 +9,7 @@
 
 class Wal {
 public:
-    explicit Wal(const std::string& path);
+    explicit Wal(const std::string& path, int commit_delay_us = 0);
     ~Wal();
 
     // Appends `record` and returns only once it is durable on disk.
@@ -32,7 +32,7 @@ public:
 
 private:
     int fd_ = -1;
-
+    int commit_delay_us_ = 0;
     std::mutex mu_;
     std::condition_variable cv_;
 

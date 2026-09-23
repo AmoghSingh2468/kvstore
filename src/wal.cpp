@@ -5,8 +5,11 @@
 #include <cstring>
 #include <stdexcept>
 #include <iostream>
+#include <thread>
+#include <chrono>
 
-Wal::Wal(const std::string& path) {
+Wal::Wal(const std::string& path, int commit_delay_us)
+    : commit_delay_us_(commit_delay_us) {
     fd_ = ::open(path.c_str(), O_RDWR | O_CREAT | O_APPEND, 0644);
     if (fd_ < 0) {
         std::cerr << "wal: cannot open " << path << ": "
@@ -34,6 +37,12 @@ void Wal::append_and_sync(const std::string& record) {
 
     // I'm the leader.
     leader_active_ = true;
+    
+    if (commit_delay_us_ > 0) {
+        lock.unlock();
+        std::this_thread::sleep_for(std::chrono::microseconds(commit_delay_us_));
+        lock.lock();
+    }
 
     while (synced_offset_ < my_offset) {
         std::string batch;

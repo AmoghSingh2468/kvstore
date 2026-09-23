@@ -13,6 +13,9 @@
 #include "store.h"
 #include "connection.h"
 #include "wal.h"
+#include <cstdlib>
+#include <cstdlib>
+#include <algorithm>
 
 namespace {
 
@@ -67,12 +70,15 @@ void worker_loop(int ep, Store* store, Wal* wal) {
 int main() {
     ::signal(SIGPIPE, SIG_IGN);
 
-    const unsigned nworkers = std::max(1u, std::thread::hardware_concurrency());
+    const char* w = std::getenv("KV_WORKERS");
+    const unsigned nworkers = w ? static_cast<unsigned>(std::max(1, std::atoi(w)))
+                                : std::max(1u, std::thread::hardware_concurrency());
 
     // Recovery happens before the listener exists, so no client can observe
     // a half-recovered store and no locking is needed here.
     Store store;
-    Wal wal("kvstore.wal");
+    const char* d = std::getenv("KV_COMMIT_DELAY_US");
+    Wal wal("kvstore.wal", d ? std::atoi(d) : 0);
     wal.replay([&store](const std::vector<std::string>& args) {
         if (args.size() == 3 && (args[0] == "SET" || args[0] == "set"))
             store.set(args[1], args[2]);

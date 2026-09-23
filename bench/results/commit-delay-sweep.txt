@@ -1,0 +1,12 @@
+--- running delay=0us (20s) ---
+delay=0us  records=43394 fsyncs=6676 avg_batch=6.499700
+--- running delay=500us (20s) ---
+delay=500us  records=75463 fsyncs=6289 avg_batch=11.999205
+--- running delay=2000us (20s) ---
+delay=2000us  records=50750 fsyncs=4229 avg_batch=12.000236
+--- running delay=5000us (20s) ---
+delay=5000us  records=30340 fsyncs=2528 avg_batch=12.000396
+--- running delay=10000us (20s) ---
+delay=10000us  records=18519 fsyncs=1543 avg_batch=12.001296
+--- running delay=20000us (20s) ---
+delay=20000us  records=10454 fsyncs=871 avg_batch=12.001148

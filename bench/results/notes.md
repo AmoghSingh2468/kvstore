@@ -73,3 +73,20 @@ write()+fsync(), so all writers serialise behind one disk round trip.
 On WSL2 an fsync crosses a VHD image and NTFS, so it is slower than
 a bare-metal SSD (~1 ms) — the group commit gain here is therefore
 larger than it would be on native Linux.
+
+## 8. Group commit batch size is capped by event loop worker count
+
+Commit delay had no effect on batch size — avg_batch was exactly
+12.000 at every delay from 0 to 20ms, while throughput fell in
+proportion to the delay (2538 -> 523 ops/sec from 2ms to 20ms).
+
+Cause: each epoll worker processes events serially and blocks inside
+append_and_sync until the record is durable. At most one request per
+worker can be in the WAL at once, so batch size == worker count.
+
+Confirmed: KV_WORKERS=4 gives avg_batch = 4.000000 exactly.
+          KV_WORKERS=12 gives avg_batch = 12.000000 exactly.
+
+Event loops assume handlers never block; group commit assumes many
+concurrent writers. The blocking WAL call violates the first
+assumption and starves the second.
