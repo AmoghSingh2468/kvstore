@@ -74,19 +74,40 @@ On WSL2 an fsync crosses a VHD image and NTFS, so it is slower than
 a bare-metal SSD (~1 ms) — the group commit gain here is therefore
 larger than it would be on native Linux.
 
-## 8. Group commit batch size is capped by event loop worker count
+## 8. Group commit: why a commit delay made things worse
 
-Commit delay had no effect on batch size — avg_batch was exactly
-12.000 at every delay from 0 to 20ms, while throughput fell in
-proportion to the delay (2538 -> 523 ops/sec from 2ms to 20ms).
+fsync measured at **2.451 ms** on the WAL's own filesystem
+(100 write+fsync pairs, mean). An earlier measurement on /tmp gave
+0.001 ms because /tmp is tmpfs — a RAM filesystem where fsync is a
+no-op. Always check the filesystem before trusting a durability number.
 
-Cause: each epoll worker processes events serially and blocks inside
-append_and_sync until the record is durable. At most one request per
-worker can be in the WAL at once, so batch size == worker count.
+64 clients, 12 workers, 20-second runs:
 
-Confirmed: KV_WORKERS=4 gives avg_batch = 4.000000 exactly.
-          KV_WORKERS=12 gives avg_batch = 12.000000 exactly.
+| delay | ops/sec | avg_batch | fsyncs/sec |
+|-------|--------:|----------:|-----------:|
+| 0     |   3,493 |      6.50 |        537 |
+| 2 ms  |   2,538 |     12.00 |        211 |
 
-Event loops assume handlers never block; group commit assumes many
-concurrent writers. The blocking WAL call violates the first
-assumption and starves the second.
+At delay=0 the commit pipeline is already saturated: 537 fsyncs/sec
+x 2.451 ms = 1.32 s of fsync per second, so a leader is essentially
+always syncing and the next takes over immediately. 6.5 is simply how
+many of the 12 workers arrive during one 2.45 ms fsync window.
+
+Adding 2 ms collects all 12 (avg_batch exactly 12.000) but stretches
+the cycle from 2.45 ms to 4.45 ms. 12/4.45 < 6.5/2.45, so throughput
+fell 38%.
+
+12 is the ceiling because each worker blocks inside append_and_sync
+and can have only one request in flight. Confirmed by forcing the
+worker count: KV_WORKERS=4 gives avg_batch = 4.000000 exactly.
+
+**Conclusion:** commit delay assumes writers arrive independently of
+commit completion. With blocking WAL calls inside event loops, writer
+arrival is *gated by* commit completion — so lingering cannot recruit
+anyone who wasn't already coming. Correct setting here: 0.
+
+**Known limitation:** the fix is an asynchronous WAL — the worker
+appends, registers a callback, and returns to its event loop instead
+of blocking. Hundreds of requests could then be in flight, batches
+would grow with load, and commit delay would start to pay. Not
+implemented; scoped out on time.
