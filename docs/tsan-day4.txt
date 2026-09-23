@@ -1,0 +1,2 @@
+wal: recovered 0 commands
+kvstore listening on :6380 (12 event loops)
