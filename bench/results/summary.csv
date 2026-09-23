@@ -1,0 +1,15 @@
+experiment,config,metric,value,unit,notes
+sharding-micro,1 shard 12 threads,throughput,889736,ops/sec,store microbenchmark no network
+sharding-micro,64 shards 12 threads,throughput,20819894,ops/sec,store microbenchmark no network
+sharding-e2e,1 lock c=64 pipelined,throughput,762172,ops/sec,median of 3
+sharding-e2e,64 shards c=64 pipelined,throughput,2848678,ops/sec,median of 3
+false-sharing,unpadded 2 threads dedicated,throughput,29398515,ops/sec,median of 3
+false-sharing,padded 2 threads dedicated,throughput,44731281,ops/sec,median of 3
+epoll,thread-per-conn 2000 conns,threads,2001,count,
+epoll,thread-per-conn 2000 conns,rss,168,MB,
+epoll,epoll 2000 conns,threads,13,count,
+epoll,epoll 2000 conns,rss,60,MB,
+wal,no wal c=64 pipelined,throughput,2848678,ops/sec,
+wal,fsync per write c=32,throughput,407,ops/sec,
+wal,group commit c=64 delay=0,throughput,3493,ops/sec,
+disk,fsync,latency,2.451,ms,measured on WAL filesystem
